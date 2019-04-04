@@ -22,13 +22,14 @@
         (- (q/height) 100)
         new-y))))
 
+; collided-with-paddle:: state -> bool
 (defn collided-with-paddle
   [state]
-  (if (<= (:x state) width)
+  (if (<= (:x state) width) ;if colliding with top of paddle
     (if (<= (math/abs (- (:paddley state) (:y state))) width)
-        (assoc state :x (+ (:x state) speed) :delta (+ 0 speed))
-        (assoc state :x (+ (:x state) (:delta state))))
-    (assoc state :x (+ (:x state) (:delta state))))
+      true
+      false)
+    false))
 
 (defn key-pressed
   [{ :keys [velocity] :as state} { :keys [key key-code] }]
@@ -37,14 +38,34 @@
     (:s :down) (if (not= [0 -1] velocity) (assoc state :paddley (get-paddley (:paddley state) 20)))
     state))
 
-(defn update-state [state]
-  (if (>= (:x state) (+ (- 800 width) (/ width 2)))
-    (assoc state :x (- (:x state) speed) :delta (- 0 speed))
-    (if (<= (:x state) (/ width 2))
-      (if (= (:delta state) (- 0 speed))
+  ; hitting-left-wall:: x -> -> width -> bool
+  (defn hitting-left-wall
+    [x width]
+    (if (<= x (/ width 2))
+      true
+      false))
+
+  ; hitting-right-wall:: x -> width -> bool
+  (defn hitting-right-wall
+    [ball-x ball-width]
+    (if (>= ball-x (+ (- 800 ball-width) (/ ball-width 2)))
+      true
+      false))
+
+  (defn update-state
+    [state]
+    (if (hitting-right-wall (:x state) width)
+      (assoc state :x (- (:x state) speed) :delta (- 0 speed))
+      (if (hitting-left-wall (:x state) width)
         (assoc state :x (+ (:x state) speed) :delta (+ 0 speed))
-        (assoc state :x (+ (:x state) (:delta state)))))
-      (assoc state :x (+ (:x state) (:delta state))))))
+        (if (collided-with-paddle state)
+          (assoc state :x (+ (:x state) speed) :delta (+ 0 speed))
+          (assoc state :x (+ (:x state) (:delta state)))))))
+
+;(hitting_top_of_paddle) hitting_top_of_paddle -> state -> bool
+;(hitting_right_of_paddle) hitting_right_of_paddle -> state -> bool
+;(hitting_bottom_of_paddle) hitting_bottom_of_paddle -> state -> bool
+;(rebounded-state) rebounded-state -> state -> state
 
 (defn draw-state [state]
   (q/background 120)
