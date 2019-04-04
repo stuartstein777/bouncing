@@ -26,8 +26,9 @@
   [state]
   (if (<= (:x state) width)
     (if (<= (math/abs (- (:paddley state) (:y state))) width)
-      (do
-        (assoc state :x (+ (:x state) speed) :delta (+ 0 speed))))))
+        (assoc state :x (+ (:x state) speed) :delta (+ 0 speed))
+        (assoc state :x (+ (:x state) (:delta state))))
+    (assoc state :x (+ (:x state) (:delta state)))))
 
 (defn key-pressed
   [{ :keys [velocity] :as state} { :keys [key key-code] }]
@@ -43,7 +44,8 @@
       (if (= (:delta state) (- 0 speed))
         (assoc state :x (+ (:x state) speed) :delta (+ 0 speed))
         (assoc state :x (+ (:x state) (:delta state))))
-      (assoc state :x (+ (:x state) (:delta state))))))
+      (assoc state :x (+ (:x state) (:delta state)))))
+  (collided-with-paddle state))
 
 (defn draw-state [state]
   (q/background 120)
