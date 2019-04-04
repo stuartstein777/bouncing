@@ -6,7 +6,7 @@
 (def speed 10)
 (def width 40)
 (defn setup []
-  (q/frame-rate 60)
+  (q/frame-rate 30)
   (q/color-mode :hsb)
   {:x 0
    :y 250
@@ -24,13 +24,10 @@
 
 (defn collided-with-paddle
   [state]
-  (if (<= ( :x state) width)
+  (if (<= (:x state) width)
     (if (<= (math/abs (- (:paddley state) (:y state))) width)
       (do
-        (assoc state :x (+ (:x state) speed) :delta (+ 0 speed))
-        true)
-      false)
-    false))
+        (assoc state :x (+ (:x state) speed) :delta (+ 0 speed))))))
 
 (defn key-pressed
   [{ :keys [velocity] :as state} { :keys [key key-code] }]
@@ -39,16 +36,14 @@
     (:s :down) (if (not= [0 -1] velocity) (assoc state :paddley (get-paddley (:paddley state) 20)))
     state))
 
-(defn update-state
-  [state]
+(defn update-state [state]
   (if (>= (:x state) (+ (- 800 width) (/ width 2)))
     (assoc state :x (- (:x state) speed) :delta (- 0 speed))
     (if (<= (:x state) (/ width 2))
       (if (= (:delta state) (- 0 speed))
-        (assoc state :x (- (:x state) speed) :delta (- 0 speed))
+        (assoc state :x (+ (:x state) speed) :delta (+ 0 speed))
         (assoc state :x (+ (:x state) (:delta state))))
-      (assoc state :x (+ (:x state) (:delta state)))))
-  (collided-with-paddle state))
+      (assoc state :x (+ (:x state) (:delta state))))))
 
 (defn draw-state [state]
   (q/background 120)
