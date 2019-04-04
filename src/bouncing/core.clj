@@ -22,13 +22,15 @@
         (- (q/height) 100)
         new-y))))
 
-(defn collision-detection
+(defn collided-with-paddle
   [state]
-  ; want to check if the ball and rectangle are touching in any way.
-  (if (<= 20 (:x state))
-    (if (<= (math/abs (- (:paddley state) (:y state))))
-      (q/fill 255 0 0)
-      (q/fill 255 255 220))))
+  (if (<= ( :x state) width)
+    (if (<= (math/abs (- (:paddley state) (:y state))) width)
+      (do
+        (assoc state :x (+ (:x state) speed) :delta (+ 0 speed))
+        true)
+      false)
+    false))
 
 (defn key-pressed
   [{ :keys [velocity] :as state} { :keys [key key-code] }]
@@ -37,14 +39,16 @@
     (:s :down) (if (not= [0 -1] velocity) (assoc state :paddley (get-paddley (:paddley state) 20)))
     state))
 
-(defn update-state [state]
+(defn update-state
+  [state]
   (if (>= (:x state) (+ (- 800 width) (/ width 2)))
     (assoc state :x (- (:x state) speed) :delta (- 0 speed))
     (if (<= (:x state) (/ width 2))
       (if (= (:delta state) (- 0 speed))
-        (assoc state :x (+ (:x state) speed) :delta (+ 0 speed))
-        state)
-      state)))
+        (assoc state :x (- (:x state) speed) :delta (- 0 speed))
+        (assoc state :x (+ (:x state) (:delta state))))
+      (assoc state :x (+ (:x state) (:delta state)))))
+  (collided-with-paddle state))
 
 (defn draw-state [state]
   (q/background 120)
