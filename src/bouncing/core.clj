@@ -1,4 +1,6 @@
 (ns bouncing.core
+  (:gen-class)
+  (:require [bouncing.collision-detection :refer [collided-with-paddle hitting-left-wall hitting-right-wall]])
   (:require [quil.core :as q]
             [quil.middleware :as m]
             [clojure.math.numeric-tower :as math]))
@@ -22,35 +24,14 @@
         (- (q/height) 100)
         new-y))))
 
-; collided-with-paddle:: state -> bool
-(defn collided-with-paddle
-  [state]
-  (if (<= (:x state) width) ;if colliding with top of paddle
-    (if (<= (math/abs (- (:paddley state) (:y state))) width)
-      true
-      false)
-    false))
-
 (defn key-pressed
   [{ :keys [velocity] :as state} { :keys [key key-code] }]
   (case key
-    (:w :up) (if (not= [0 1] velocity) (assoc state :paddley (get-paddley (:paddley state) -20)))
-    (:s :down) (if (not= [0 -1] velocity) (assoc state :paddley (get-paddley (:paddley state) 20)))
+    (:w :up)   (if (not= [0 1] velocity)
+                 (assoc state :paddley (get-paddley (:paddley state) -20)))
+    (:s :down) (if (not= [0 -1] velocity)
+                 (assoc state :paddley (get-paddley (:paddley state) 20)))
     state))
-
-  ; hitting-left-wall:: x -> -> width -> bool
-  (defn hitting-left-wall
-    [x width]
-    (if (<= x (/ width 2))
-      true
-      false))
-
-  ; hitting-right-wall:: x -> width -> bool
-  (defn hitting-right-wall
-    [ball-x ball-width]
-    (if (>= ball-x (+ (- 800 ball-width) (/ ball-width 2)))
-      true
-      false))
 
   (defn update-state
     [state]
@@ -61,11 +42,6 @@
         (if (collided-with-paddle state)
           (assoc state :x (+ (:x state) speed) :delta (+ 0 speed))
           (assoc state :x (+ (:x state) (:delta state)))))))
-
-;(hitting_top_of_paddle) hitting_top_of_paddle -> state -> bool
-;(hitting_right_of_paddle) hitting_right_of_paddle -> state -> bool
-;(hitting_bottom_of_paddle) hitting_bottom_of_paddle -> state -> bool
-;(rebounded-state) rebounded-state -> state -> state
 
 (defn draw-state [state]
   (q/background 120)
