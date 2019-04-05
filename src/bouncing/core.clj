@@ -5,7 +5,7 @@
             [quil.middleware :as m]
             [clojure.math.numeric-tower :as math]))
 
-(def speed 10)
+(def speed 5)
 (def width 40)
 (defn setup []
   (q/frame-rate 30)
@@ -13,7 +13,8 @@
   {:x 0
    :y 250
    :delta speed
-   :paddley 120})
+   :paddley 120
+   :score 0})
 
 (defn get-paddley
   [paddley change]
@@ -39,18 +40,22 @@
       (assoc state :x (- (:x state) speed) :delta (- 0 speed))
       (if (hitting-left-wall (:x state) width)
         (assoc state :x (+ (:x state) speed) :delta (+ 0 speed))
-        (if (collided-with-paddle state)
-          (assoc state :x (+ (:x state) speed) :delta (+ 0 speed))
+        (if (collided-with-paddle state width)
+          (assoc state :x (+ (:x state) speed) :delta (+ 0 speed) :score (+ 1 (:score state)))
           (assoc state :x (+ (:x state) (:delta state)))))))
 
 (defn draw-state [state]
-  (q/background 120)
+  (q/background 40)
   (q/stroke 0)
-  (q/fill 120 120 120)
+  (q/fill 200 200 200)
   (q/ellipse (:x state) (:y state) width width)
   (q/stroke 2)
-  (q/fill 0 255 255)
-  (q/rect 0 (:paddley state) 25 100))
+  (q/fill 0 17 87)
+  (q/rect 0 (:paddley state) 25 100)
+  (let [font (q/create-font "Courier New" 20)]
+    (q/text-font font 40)
+    (q/fill 200 200 200)
+    (q/text (str (:score state)) 730 750)))
 
 (q/defsketch bouncing
              :title "Bouncing was the limit of their cognitive range."
