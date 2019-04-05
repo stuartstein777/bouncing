@@ -1,10 +1,5 @@
 (ns bouncing.collision-detection)
 
-; collided-with-paddle:: state -> bool
-(defn collided-with-paddle
-  [state]
-  false)
-
 (defn- deltax
   [circle-x, rect-x]
   (- circle-x
@@ -32,3 +27,12 @@
   (if (>= ball-x (+ (- 800 ball-width) (/ ball-width 2)))
     true
     false))
+
+; collided-with-paddle:: state -> bool
+; (deltax * deltax) + (deltay * deltay) < (radius * radius)
+(defn collided-with-paddle
+  [state width]
+  (let [deltax (deltax (:x state) 0)
+        deltay (deltay (:y state) (:paddley state))
+        radius (/ width 2)]
+    (< (+ (* deltax deltax) (* deltay deltay)) (* radius radius))))
